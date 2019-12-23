@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<tkproject>
+    <tkwsinfo>
+        <version>3.5.3.0</version>
+    </tkwsinfo>
+    <project>
+        <mcu>BS66F360</mcu>
+        <package>44LQFP</package>
+        <path>D:\MyCloud\TQWorking\TQ01D3\TQ01D3Key</path>
+        <name>TQ01D3Key</name>
+        <library name="BS66F360_LIBV413" version="BS66F360_LIBV413" />
+    </project>
+    <global />
+    <mcuconfig list_mode="0" list_simple="0">
+        <key index="17">
+            <match_pin>18</match_pin>
+        </key>
+        <key index="18">
+            <match_pin>17</match_pin>
+        </key>
+        <key index="19">
+            <match_pin>16</match_pin>
+        </key>
+        <key index="20">
+            <match_pin>15</match_pin>
+        </key>
+        <component>
+            <rect x="293" y="105" width="80" hight="30" />
+            <lib>TUNING_UART_V204</lib>
+            <child>
+                <perip_pin index="0">
+                    <match_pin>0</match_pin>
+                </perip_pin>
+            </child>
+        </component>
+    </mcuconfig>
+    <usrwnd>
+        <download flag="0" />
+        <ocds_mode>0</ocds_mode>
+    </usrwnd>
+</tkproject>

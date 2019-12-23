@@ -1,0 +1,11 @@
+; system file 
+; DO NOT modify manually.
+["Vdd (for selections of Internal RC)"]
+DEFINE=vdd 
+"5V"=1  
+"3.0V"=2  
+["HIRC frequency selection"]
+DEFINE=SystemClock 
+"8 MHZ"=0 
+"12 MHZ"=1 
+"16 MHZ"=2 
