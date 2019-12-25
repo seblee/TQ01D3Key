@@ -12,27 +12,18 @@
     </project>
     <global />
     <mcuconfig list_mode="0" list_simple="0">
-        <key index="17">
-            <match_pin>18</match_pin>
-        </key>
-        <key index="18">
-            <match_pin>17</match_pin>
+        <key index="20">
+            <match_pin>15</match_pin>
         </key>
         <key index="19">
             <match_pin>16</match_pin>
         </key>
-        <key index="20">
-            <match_pin>15</match_pin>
+        <key index="18">
+            <match_pin>17</match_pin>
         </key>
-        <component>
-            <rect x="293" y="105" width="80" hight="30" />
-            <lib>TUNING_UART_V204</lib>
-            <child>
-                <perip_pin index="0">
-                    <match_pin>0</match_pin>
-                </perip_pin>
-            </child>
-        </component>
+        <key index="17">
+            <match_pin>18</match_pin>
+        </key>
     </mcuconfig>
     <usrwnd>
         <download flag="0" />

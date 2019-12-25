@@ -1,12 +1,12 @@
 ; ========================================================================================================================
 ; * Created by: Holtek Touch MCU Workshop, Version 3.5.3.0
 ; TKS_GLOBE_VARIES.inc
-; 05:09:45 PM Monday, December 23, 2019
+; 09:30:31 AM Tuesday, December 24, 2019
 ; ========================================================================================================================
 #include "BS66F360.inc"
 #define _BS66F360_
 #define _V413_
-#define SystemClock     0
+#define SystemClock     2
 #define IO              0
 #define KEY             1
 ; Keys' attribute & settings ...
@@ -69,21 +69,17 @@
 #define IO_TOUCH_ATTR   00000000000011110000000000000000b
 #define IO_TOUCH_ATTR2  0000b
 ; Components' settings ...
-;	'TUNING_UART_V204' 
-#define _UART_TX        PA1
-#define _UART_TX_C      PAC1
-#define BAUDRATE_OPTION 0 	; 38400bps
 ; Global options' settings ...
-#define DebounceTimes   5 	; 80mS
+#define DebounceTimes   2 	; 50mS
 #define AutoCalibrationPeriod 7 	; x 8 (640mS)
 #define HighSensitive   0 	; uncheck
-#define MaximumKeyHoldTime 0 	; Disable
+#define MaximumKeyHoldTime 15 	; 60 Sec
 #define FastResponse    0 	; uncheck
-#define AutoFrequencyHopping 0 	; uncheck
+#define AutoFrequencyHopping 1 	; check
 #define OneKeyActive    0 	; uncheck
 #define PowerSave       0 	; uncheck
 #define NoiseProtect    0 	; uncheck
-#define MovingCalibration 0 	; uncheck
-#define GlobeOptionA    ((AutoCalibrationPeriod << 4) | DebounceTimes)
-#define GlobeOptionB    ((MaximumKeyHoldTime << 4) | HighSensitive)
-#define GlobeOptionC    ((FastResponse << 2) | (PowerSave << 6) | (OneKeyActive << 5) | (NoiseProtect << 4) | (MovingCalibration << 7) | (AutoFrequencyHopping << 3))
+#define MovingCalibration 1 	; check
+#define GlobeOptionA    (DebounceTimes | (AutoCalibrationPeriod << 4))
+#define GlobeOptionB    (HighSensitive | (MaximumKeyHoldTime << 4))
+#define GlobeOptionC    ((FastResponse << 2) | (AutoFrequencyHopping << 3) | (PowerSave << 6) | (NoiseProtect << 4) | (OneKeyActive << 5) | (MovingCalibration << 7))

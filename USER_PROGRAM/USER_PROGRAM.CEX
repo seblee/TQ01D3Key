@@ -7,6 +7,9 @@ extern  void    USER_PROGRAM();
 
 
 
+extern  void    USER_LED_INITIAL();      
+extern  void    USER_LED();   	
+
 
 
 

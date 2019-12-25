@@ -1,7 +1,7 @@
 ; ========================================================================================================================
 ; * Created by: Holtek Touch MCU Workshop, Version 3.5.3.0
 ; MAIN_PROGRAM_V104.inc
-; 05:09:45 PM Monday, December 23, 2019
+; 09:30:31 AM Tuesday, December 24, 2019
 ; ========================================================================================================================
 #include "..\TKS_GLOBE_VARIES.inc" 
 #include "MAIN_PROGRAM_20170905.MCU" 
@@ -11,9 +11,8 @@
 #define EXTEND_FUNCTION_1A             _BS66F360_LIBV413
 #include "..\USER_PROGRAM\USER_PROGRAM.aex" 
 #define                                
-#define EXTEND_FUNCTION_1B_INITIAL     _USER_PROGRAM_INITIAL
-#define EXTEND_FUNCTION_1B             _USER_PROGRAM
-#include "..\TUNING_UART_V204\TUNING_UART_V204.aex" 
-#define                                
-#define EXTEND_FUNCTION_1C_INITIAL     _TUNING_UART_V204_INITIAL
-#define EXTEND_FUNCTION_1C             _TUNING_UART_V204
+#define EXTEND_FUNCTION_1C_INITIAL     _USER_PROGRAM_INITIAL
+#define EXTEND_FUNCTION_1C             _USER_PROGRAM
+
+#DEFINE EXTEND_FUNCTION_1E_INITIAL      _USER_LED_INITIAL
+#DEFINE EXTEND_FUNCTION_1E              _USER_LED
