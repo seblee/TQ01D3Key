@@ -2,7 +2,8 @@
 #define _USER_TYPE_H_
 
 #define Version "03.00.01"
-
+#define uchar unsigned char
+#define uint unsigned int
 typedef struct
 {
     unsigned char s0 : 2;
@@ -24,6 +25,32 @@ typedef union
     unsigned char byte;
 } _USR_FLAGA_type;
 
+typedef struct
+{
+    unsigned char *cmd;
+    unsigned char *bkHead;
+    unsigned char *bkKey;
+} cmd_map_st;
+typedef enum
+{
+    BLE_PPP,
+    BLE_SETBR,
+    BLE_GETNAME,
+    BLE_SETNAME,
+    BLE_GETADDR,
+    BLE_SETADDR,
+    BLE_GETSTATUS,
+    BLE_SETADVINT,
+    BLE_SETCONNINT,
+    BLE_DISCONNECT,
+    BLE_RESTART,
+    BLE_GETPARA,
+    BLE_EXIT,
+    BLE_SHUTDOWN,
+    BLE_RESTORE,
+    BLE_GETINFO,
+    BLE_HELP,
+} ble_cmd_t;
 enum
 {
     LED_ON,
@@ -43,6 +70,15 @@ enum
     STATE_BEEP_OFF,
     STATE_BEEP_ON,
     STATE_BEEP_FLASH,
+};
+
+enum
+{
+    UART_IDEL,
+    UART_TRANSFERING,
+    UART_,
+    UART_STATE_IDEL,
+    //    UART_STATE_IDEL,
 };
 
 #endif

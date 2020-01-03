@@ -31,15 +31,6 @@ volatile _TKS_FLAGA_type bitFlag;
 #define beepFlag bitFlag.bits.b0
 #define beepON bitFlag.bits.b1
 #define beepOFF bitFlag.bits.b2
-/****************************************/
-uchar rxBuff;
-uchar rxCount    = 0;
-uchar txBuff[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0x0a};
-uchar txCount    = 0;
-/****************************************/
-#define UART_SW _pb6
-#define PWR_ON _pb5
-#define WKUP _pb4
 //==============================================
 //**********************************************
 // INT0 Pin
@@ -56,19 +47,7 @@ void __attribute((interrupt(0x08))) Interrupt_INT1(void)
 {
     GCC_NOP();
 }
-//==============================================
-//**********************************************
-// UART
-//==============================================
-void __attribute((interrupt(0x10))) Interrupt_UART(void)
-{
-    GCC_NOP();
-    if (_rxif)
-    {
-        rxBuff = _txr_rxr;
-        //        receiveUart(rxBuff);
-    }
-}
+
 //==============================================
 //**********************************************
 // M. Funct. 0
@@ -203,47 +182,6 @@ void USER_PROGRAM()
     }
 }
 
-void USER_UART_INITIAL()
-{
-    /********uart**************/
-    _pbs04 = 1;
-    _pbs05 = 0;
-    _pbs06 = 1;
-    _pbs07 = 0;
-    _usr   = 0x00;
-    _ucr1  = 0x80;
-    _ucr2  = 0xe4;
-    _brg   = 0x67;
-    _emi   = 1;
-    _ure   = 1;
-}
-
-void USER_UART()
-{
-    if (TKS_63MSF)
-    {
-        if (txCount == 0)
-            txCount = 5;
-    }
-    if (txCount && _txif)
-    {
-        if (txCount == 5)
-        {
-            txBuff[0] = 0xa7;
-            txBuff[1] = 0xf2;
-            txBuff[2] = k_count[0];
-            txBuff[3] = k_count[1];
-            txBuff[4] = 0;
-            txBuff[4] += txBuff[0];
-            txBuff[4] += txBuff[1];
-            txBuff[4] += txBuff[2];
-            txBuff[4] += txBuff[3];
-        }
-
-        _txr_rxr = txBuff[5 - txCount];
-        txCount--;
-    }
-}
 void USER_LED_INITIAL()
 {
     /********LED**************/
@@ -253,47 +191,16 @@ void USER_LED_INITIAL()
     /********LED**************/
     _pcc &= 0b00001111;
 
-    LED1 = LED_ON;
-    LED2 = LED_ON;
-    LED3 = LED_ON;
-    LED4 = LED_ON;
-    LED5 = LED_ON;
-    LED6 = LED_ON;
-    LED7 = LED_ON;
-    LED8 = LED_ON;
+    LED1 = LED_OFF;
+    LED2 = LED_OFF;
+    LED3 = LED_OFF;
+    LED4 = LED_OFF;
+    LED5 = LED_OFF;
+    LED6 = LED_OFF;
+    LED7 = LED_OFF;
+    LED8 = LED_OFF;
 }
 
 void USER_LED()
 {
-    LED1 = LED_ON;
-    LED2 = LED_ON;
-    LED3 = LED_ON;
-    LED4 = LED_ON;
-    LED5 = LED_ON;
-    LED6 = LED_ON;
-    LED7 = LED_ON;
-    LED8 = LED_ON;
-}
-
-void USER_BLE_INITIAL()
-{
-    /********UART_SW *PWR_ON ********/
-    _pbc &= 0b10011111;
-    /********WKUP**************/
-    _pbc |= 0b00010000;
-
-    UART_SW = 1;
-    PWR_ON  = 1;
-}
-
-void USER_BLE()
-{
-    LED1 = LED_ON;
-    LED2 = LED_ON;
-    LED3 = LED_ON;
-    LED4 = LED_ON;
-    LED5 = LED_ON;
-    LED6 = LED_ON;
-    LED7 = LED_ON;
-    LED8 = LED_ON;
 }
