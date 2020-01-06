@@ -15,7 +15,7 @@ volatile _TKS_FLAGA_type BLEbitFlag;
 #define uartGetflag BLEbitFlag.bits.b2
 #define commandMode BLEbitFlag.bits.b3
 #define commandOK BLEbitFlag.bits.b4
-#define bleNeedRestart BLEbitFlag.bits.b5
+#define WKUPBak BLEbitFlag.bits.b5
 
 /**************************************/
 #define RXMAX 40
@@ -141,6 +141,11 @@ void USER_BLE()
             delayCount--;
         return;
     }
+    if (WKUPBak && (!WKUP))
+    {
+        pushCmdSendBuff(BLE_TRANSMISSION, rxBuff);
+    }
+    WKUPBak = WKUP;
     if (!BLEInit)
     {
         bleInitialization();
@@ -242,15 +247,25 @@ void bleInitialization()
 void pushCmdSendBuff(ble_cmd_t cmd, const char *data)
 {
     bleCmdType = cmd;
-    memset(txBuff, 0, sizeof(rxBuff));
-    strcpy(txBuff, AT_command[bleCmdType].cmd);
-    if (data)
+    memset(txBuff, 0, sizeof(txBuff));
+    if (cmd == BLE_TRANSMISSION)
     {
-        strcat(txBuff, data);
-        strcat(txBuff, "\r\n");
+        memcpy(txBuff, data, rxCount);
+        txCount    = rxCount;
+        txCountBak = txCount;
+        rxCount    = 0;
     }
-    txCount    = strlen(txBuff);
-    txCountBak = txCount;
+    else
+    {
+        strcpy(txBuff, AT_command[bleCmdType].cmd);
+        if (data)
+        {
+            strcat(txBuff, data);
+            strcat(txBuff, "\r\n");
+        }
+        txCount    = strlen(txBuff);
+        txCountBak = txCount;
+    }
 }
 void rxProcess(void)
 {
@@ -259,9 +274,15 @@ void rxProcess(void)
         uartGetflag = 0;
         if (commandMode)
         {
-            if (strstr(rxBuff, "\r\n"))
+            if ((strstr(rxBuff, "\r\n")) || (rxCount >= 25))
             {
                 uartRecOK = 1;
+            }
+        }
+        else
+        {
+            if (rxCount >= 20)
+            {
             }
         }
     }
@@ -307,6 +328,10 @@ void rxProcess(void)
                     break;
                     // case BLE_GETPARA:                    break;
                 case BLE_EXIT:
+                    if (strstr(rxBuff, AT_command[bleCmdType].bkKey))
+                    {
+                        commandMode = 0;
+                    }
                     commandOK = 1;
                     break;
                 // case BLE_SHUTDOWN:                    break;

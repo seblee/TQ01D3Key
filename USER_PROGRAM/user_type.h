@@ -50,6 +50,7 @@ typedef enum
     BLE_RESTORE,
     BLE_GETINFO,
     BLE_HELP,
+    BLE_TRANSMISSION,
 } ble_cmd_t;
 enum
 {
