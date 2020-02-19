@@ -1,0 +1,9 @@
+
+;;******************************************************
+;;***** USER PROGRAM EXTERNAL REFERENCE FOR ASM CODE   *
+;;******************************************************
+
+EXTERN  _USER_I2C_INITIAL   :NEAR
+EXTERN  _USER_I2C           :NEAR
+
+

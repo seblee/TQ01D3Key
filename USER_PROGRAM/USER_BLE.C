@@ -15,7 +15,7 @@ volatile _TKS_FLAGA_type BLEbitFlag;
 #define uartGetflag BLEbitFlag.bits.b2
 #define commandMode BLEbitFlag.bits.b3
 #define commandOK BLEbitFlag.bits.b4
-#define WKUPBak BLEbitFlag.bits.b5
+#define timeToTrans BLEbitFlag.bits.b5
 
 /**************************************/
 #define RXMAX 40
@@ -141,11 +141,11 @@ void USER_BLE()
             delayCount--;
         return;
     }
-    if (WKUPBak && (!WKUP))
-    {
+    if (TKS_63MSF)
+        timeToTrans = 1;
+    if ((txCount == 0) && (commandMode == 0) && ((rxCount >= 20)))
         pushCmdSendBuff(BLE_TRANSMISSION, rxBuff);
-    }
-    WKUPBak = WKUP;
+
     if (!BLEInit)
     {
         bleInitialization();
