@@ -100,7 +100,7 @@ void USER_UART_INITIAL()
     _ucr1  = 0x80;
     _ucr2  = 0xe4;
     _brg   = 0x67;
-//    _emi   = 1;
+    _emi   = 1;
     _ure   = 1;
 
     memset(rxBuff, 0, sizeof(rxBuff));

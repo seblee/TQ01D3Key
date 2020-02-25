@@ -26,11 +26,30 @@ uchar beepCount = 1;
 #define LED6 _pc5
 #define LED7 _pc6
 #define LED8 _pc7
+
+_USR_FLAGA_type ledState[5];
+#define led1State ledState[0].s4bits.s0
+#define led2State ledState[0].s4bits.s1
+#define led3State ledState[1].s4bits.s0
+#define led4State ledState[1].s4bits.s1
+#define led5State ledState[2].s4bits.s0
+#define led6State ledState[2].s4bits.s1
+#define led7State ledState[3].s4bits.s0
+#define led8State ledState[3].s4bits.s1
+// #define led9State ledState[4].s4bits.s0
+
 /*************************************/
 volatile _TKS_FLAGA_type bitFlag;
 #define beepFlag bitFlag.bits.b0
 #define beepON bitFlag.bits.b1
 #define beepOFF bitFlag.bits.b2
+#define flashFlag_0_5HZ bitFlag.bits.b4
+#define flashFlag_1HZ bitFlag.bits.b5
+#define flashFlag_2HZ bitFlag.bits.b6
+
+/******************************************/
+extern uchar I2cDataOut[10];
+/******************************************/
 //==============================================
 //**********************************************
 // INT0 Pin
@@ -171,6 +190,8 @@ void USER_PROGRAM()
         {
             beepCount++;
         }
+        I2cDataOut[0] = k_count[0];
+        I2cDataOut[1] = k_count[1];
     }
 }
 
@@ -195,4 +216,209 @@ void USER_LED_INITIAL()
 
 void USER_LED()
 {
+    {
+        if (led1State == STATE_LED_OFF)
+        {
+            LED1 = LED_OFF;
+        }
+        if (led2State == STATE_LED_OFF)
+        {
+            LED2 = LED_OFF;
+        }
+        if (led3State == STATE_LED_OFF)
+        {
+            LED3 = LED_OFF;
+        }
+        if (led4State == STATE_LED_OFF)
+        {
+            LED4 = LED_OFF;
+        }
+
+        if (led5State == STATE_LED_OFF)
+        {
+            LED5 = LED_OFF;
+        }
+
+        if (led6State == STATE_LED_OFF)
+        {
+            LED6 = LED_OFF;
+        }
+        if (led7State == STATE_LED_OFF)
+        {
+            LED7 = LED_OFF;
+        }
+        if (led8State == STATE_LED_OFF)
+        {
+            LED8 = LED_OFF;
+        }
+
+        if (led1State == STATE_LED_ON)
+        {
+            LED1 = LED_ON;
+        }
+        if (led2State == STATE_LED_ON)
+        {
+            LED2 = LED_ON;
+        }
+        if (led3State == STATE_LED_ON)
+        {
+            LED3 = LED_ON;
+        }
+        if (led4State == STATE_LED_ON)
+        {
+            LED4 = LED_ON;
+        }
+
+        if (led5State == STATE_LED_ON)
+        {
+            LED5 = LED_ON;
+        }
+
+        if (led6State == STATE_LED_ON)
+        {
+            LED6 = LED_ON;
+        }
+        if (led7State == STATE_LED_ON)
+        {
+            LED7 = LED_ON;
+        }
+        if (led8State == STATE_LED_ON)
+        {
+            LED8 = LED_ON;
+        }
+    }
+
+    if (TKS_250MSF)
+    {
+        if (flashFlag_2HZ)
+        {
+            flashFlag_2HZ = 0;
+        }
+        else
+        {
+            flashFlag_2HZ = 1;
+        }
+        if (led1State == STATE_LED_FLASH_2HZ)
+        {
+            LED1 = flashFlag_2HZ;
+        }
+        if (led2State == STATE_LED_FLASH_2HZ)
+        {
+            LED2 = flashFlag_2HZ;
+        }
+        if (led3State == STATE_LED_FLASH_2HZ)
+        {
+            LED3 = flashFlag_2HZ;
+        }
+        if (led4State == STATE_LED_FLASH_2HZ)
+        {
+            LED4 = flashFlag_2HZ;
+        }
+
+        if (led5State == STATE_LED_FLASH_2HZ)
+        {
+            LED5 = flashFlag_2HZ;
+        }
+
+        if (led6State == STATE_LED_FLASH_2HZ)
+        {
+            LED6 = flashFlag_2HZ;
+        }
+        if (led7State == STATE_LED_FLASH_2HZ)
+        {
+            LED7 = flashFlag_2HZ;
+        }
+        if (led8State == STATE_LED_FLASH_2HZ)
+        {
+            LED8 = flashFlag_2HZ;
+        }
+    }
+
+    if (TKS_500MSF)
+    {
+        if (flashFlag_1HZ)
+        {
+            flashFlag_1HZ = 0;
+        }
+        else
+        {
+            flashFlag_1HZ = 1;
+        }
+        if (led1State == STATE_LED_FLASH_1HZ)
+        {
+            LED1 = flashFlag_1HZ;
+        }
+        if (led2State == STATE_LED_FLASH_1HZ)
+        {
+            LED2 = flashFlag_1HZ;
+        }
+        if (led3State == STATE_LED_FLASH_1HZ)
+        {
+            LED3 = flashFlag_1HZ;
+        }
+        if (led4State == STATE_LED_FLASH_1HZ)
+        {
+            LED4 = flashFlag_1HZ;
+        }
+        if (led5State == STATE_LED_FLASH_1HZ)
+        {
+            LED5 = flashFlag_1HZ;
+        }
+        if (led6State == STATE_LED_FLASH_1HZ)
+        {
+            LED6 = flashFlag_1HZ;
+        }
+        if (led7State == STATE_LED_FLASH_1HZ)
+        {
+            LED7 = flashFlag_1HZ;
+        }
+        if (led8State == STATE_LED_FLASH_1HZ)
+        {
+            LED8 = flashFlag_1HZ;
+        }
+
+        if (flashFlag_1HZ)
+        {
+            if (flashFlag_0_5HZ)
+            {
+                flashFlag_0_5HZ = 0;
+            }
+            else
+            {
+                flashFlag_0_5HZ = 1;
+            }
+            if (led1State == STATE_LED_FLASH_0_5HZ)
+            {
+                LED1 = flashFlag_0_5HZ;
+            }
+            if (led2State == STATE_LED_FLASH_0_5HZ)
+            {
+                LED2 = flashFlag_0_5HZ;
+            }
+            if (led3State == STATE_LED_FLASH_0_5HZ)
+            {
+                LED3 = flashFlag_0_5HZ;
+            }
+            if (led4State == STATE_LED_FLASH_0_5HZ)
+            {
+                LED4 = flashFlag_0_5HZ;
+            }
+            if (led5State == STATE_LED_FLASH_0_5HZ)
+            {
+                LED5 = flashFlag_0_5HZ;
+            }
+            if (led6State == STATE_LED_FLASH_0_5HZ)
+            {
+                LED6 = flashFlag_0_5HZ;
+            }
+            if (led7State == STATE_LED_FLASH_0_5HZ)
+            {
+                LED7 = flashFlag_0_5HZ;
+            }
+            if (led8State == STATE_LED_FLASH_0_5HZ)
+            {
+                LED8 = flashFlag_0_5HZ;
+            }
+        }
+    }
 }
