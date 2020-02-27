@@ -82,4 +82,12 @@ enum
     //    UART_STATE_IDEL,
 };
 
+enum
+{
+    CMD_IDEL,
+    CMD_KEY,
+    CMD_LED,
+    CMD_REG,
+};
+
 #endif

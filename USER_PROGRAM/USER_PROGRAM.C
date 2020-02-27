@@ -189,9 +189,7 @@ void USER_PROGRAM()
         if (keyTrg[1].byte)
         {
             beepCount++;
-        }
-        I2cDataOut[0] = k_count[0];
-        I2cDataOut[1] = k_count[1];
+        } 
     }
 }
 
