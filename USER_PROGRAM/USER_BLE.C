@@ -1,7 +1,7 @@
 
 #include "..\MAIN_PROGRAM_V104\MAIN_PROGRAM_V104.H"
 #include "..\TKS_GLOBE_VARIES.H"
-#include "user_type.h"
+#include "user_data.h"
 #include <string.h>
 /****************************************/
 #define UART_SW _pb6
@@ -10,16 +10,11 @@
 
 /**************************************/
 volatile _TKS_FLAGA_type BLEbitFlag;
-#define BLEInit BLEbitFlag.bits.b0
-#define uartRecOK BLEbitFlag.bits.b1
-#define uartGetflag BLEbitFlag.bits.b2
-#define commandMode BLEbitFlag.bits.b3
-#define commandOK BLEbitFlag.bits.b4
-#define timeToTrans BLEbitFlag.bits.b5
-
+const uchar protocolHeader[] = {0xff, 0xa5};
 /**************************************/
-#define RXMAX 40
+
 uchar rxCount       = 0;
+uchar rxStep        = 0;
 uchar txBuff[30]    = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0x0a};
 uchar rxBuff[RXMAX] = {0};
 uchar txCount       = 0;
@@ -126,6 +121,9 @@ void USER_BLE_INITIAL()
     _pbc &= 0b10011111;
     /********WKUP**************/
     _pbc |= 0b00010000;
+    /********BLE Connecetd**************/
+    _pcc |= 0b00000100;
+    _pcpu &= 0b11111011;
 
     UART_SW         = 1;
     PWR_ON          = 1;
@@ -159,88 +157,81 @@ void USER_BLE()
 void bleInitialization()
 {
     static char step = 0;
-
-    if (step == 0)
+    switch (step)
     {
-        delayCount = 100;
-        step++;
-    }
-    else if (step == 1)
-    {
-        if ((!commandMode) && (txCount == 0))
-        {
-            commandMode = 1;
-            commandOK   = 0;
-            pushCmdSendBuff(BLE_PPP, 0);
-            step = 2;
-        }
-    }
-    else if (step == 2)
-    {
-        if ((commandOK) && (txCount == 0))
-        {
-            commandOK = 0;
-            pushCmdSendBuff(BLE_GETADDR, 0);
-            step = 3;
-        }
-    }
-    else if (step == 3)
-    {
-        if ((commandOK) && (txCount == 0))
-        {
-            commandOK = 0;
-            pushCmdSendBuff(BLE_GETNAME, 0);
-            step = 4;
-        }
-    }
-    else if (step == 4)
-    {
-        static char count = 5;
-        if ((commandOK) && (txCount == 0))
-        {
-            if (strncmp(bleName, bleAddr, 17))
+        case 0:
+            delayCount = 100;
+            step++;
+            break;
+        case 1:
+            if ((!commandMode) && (txCount == 0))
+            {
+                commandMode = 1;
+                commandOK   = 0;
+                pushCmdSendBuff(BLE_PPP, 0);
+                step = 2;
+            }
+            break;
+        case 2:
+            if ((commandOK) && (txCount == 0))
             {
                 commandOK = 0;
-                pushCmdSendBuff(BLE_SETNAME, bleAddr);
-                step = 5;
+                pushCmdSendBuff(BLE_GETADDR, 0);
+                step = 3;
             }
-            else
+            break;
+        case 3:
+            if ((commandOK) && (txCount == 0))
             {
-                step = 7;
+                commandOK = 0;
+                pushCmdSendBuff(BLE_GETNAME, 0);
+                step = 4;
             }
-        }
-    }
-    else if (step == 5)
-    {
-        if ((commandOK) && (txCount == 0))
-        {
-            commandOK = 0;
-            pushCmdSendBuff(BLE_RESTART, 0);
-            step = 6;
-        }
-    }
-    else if (step == 6)
-    {
-        if ((commandOK) && (txCount == 0))
-        {
-            step = 0;
-        }
-    }
-    else if (step == 7)
-    {
-        if ((commandOK) && (txCount == 0))
-        {
-            commandOK = 0;
-            pushCmdSendBuff(BLE_EXIT, 0);
-            step = 8;
-        }
-    }
-    else if (step == 8)
-    {
-        if (commandOK)
-        {
-            BLEInit = 1;
-        }
+            break;
+        case 4:
+            if ((commandOK) && (txCount == 0))
+            {
+                if (strncmp(bleName, bleAddr, 17))
+                {
+                    commandOK = 0;
+                    pushCmdSendBuff(BLE_SETNAME, bleAddr);
+                    step = 5;
+                }
+                else
+                {
+                    step = 7;
+                }
+            }
+            break;
+        case 5:
+            if ((commandOK) && (txCount == 0))
+            {
+                commandOK = 0;
+                pushCmdSendBuff(BLE_RESTART, 0);
+                step = 6;
+            }
+            break;
+        case 6:
+            if ((commandOK) && (txCount == 0))
+            {
+                step = 0;
+            }
+            break;
+        case 7:
+            if ((commandOK) && (txCount == 0))
+            {
+                commandOK = 0;
+                pushCmdSendBuff(BLE_EXIT, 0);
+                step = 8;
+            }
+            break;
+        case 8:
+            if (commandOK)
+            {
+                BLEInit = 1;
+            }
+            break;
+        default:
     }
 }
 
@@ -281,11 +272,58 @@ void rxProcess(void)
         }
         else
         {
-            if (rxCount >= 20)
+        again:
+            if (rxStep == 0)
             {
+                if (rxCount < 2)
+                    goto rxContinue;
+                if (memcmp(rxBuff, (void *)protocolHeader, 2) == 0)
+                    rxStep = 1;
+                else
+                {
+                    memcpy(rxBuff, rxBuff + 1, rxCount - 1);
+                    rxCount--;
+                    goto again;
+                }
+            }
+
+            if (rxStep == 1)
+            {
+                if (rxCount < 4)
+                    goto rxContinue;
+                if (rxBuff[3] <= 15)
+                    rxStep = 2;
+                else
+                {
+                    memcpy(rxBuff, rxBuff + 2, rxCount - 2);
+                    rxCount -= 2;
+                    rxStep = 0;
+                    goto again;
+                }
+            }
+
+            if (rxStep == 2)
+            {
+                uchar checkSum, checkIndex;
+                if (rxCount < rxBuff[3] + 5)
+                    goto rxContinue;
+                checkSum   = getCheckSum(rxBuff);
+                checkIndex = rxBuff[3] + 4;
+                if (checkSum == rxBuff[checkIndex])
+                {
+                    rxStep = 3;
+                }
+                else
+                {
+                    memcpy(rxBuff, rxBuff + 4, rxCount - 4);
+                    rxCount -= 4;
+                    rxStep = 0;
+                    goto again;
+                }
             }
         }
     }
+rxContinue:
     if (uartRecOK)
     {
         char *atBak = strstr(rxBuff, "AT+ok");
@@ -355,7 +393,6 @@ void rxProcess(void)
                     break;
             }
         }
-
         memset(rxBuff, 0, sizeof(rxBuff));
         rxCount = 0;
     }

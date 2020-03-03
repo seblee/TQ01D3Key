@@ -3,9 +3,8 @@
 #include "..\TKS_GLOBE_VARIES.H"
 #include "..\MAIN_PROGRAM_V104\MAIN_PROGRAM_V104.H"
 
-#include "user_type.h"
-#define uchar unsigned char
-#define uint unsigned int
+#include "user_data.h"
+
 /*****key**************************/
 volatile _TKS_FLAGA_type keyTrg[2];
 volatile uchar k_count[2];
@@ -48,7 +47,7 @@ volatile _TKS_FLAGA_type bitFlag;
 #define flashFlag_2HZ bitFlag.bits.b6
 
 /******************************************/
-extern uchar I2cDataOut[10];
+
 /******************************************/
 //==============================================
 //**********************************************
@@ -189,7 +188,7 @@ void USER_PROGRAM()
         if (keyTrg[1].byte)
         {
             beepCount++;
-        } 
+        }
     }
 }
 

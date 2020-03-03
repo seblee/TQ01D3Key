@@ -1,24 +1,26 @@
 #include "..\MAIN_PROGRAM_V104\MAIN_PROGRAM_V104.H"
 #include "..\TKS_GLOBE_VARIES.H"
-#include "user_type.h"
+#include "user_data.h"
+#include "string.h"
 
 #define I2C_ADDRESS 0x7e
-
 uchar I2cDataIn[20]  = {0xff, 0xa5};
 uchar I2cDataOut[20] = {0xff, 0xa5};
+
 static uchar inIndex = 0, outIndex = 0;
 
 volatile _TKS_FLAGA_type I2CbitFlag;
 #define I2CInFlag I2CbitFlag.bits.b0
 #define I2COutFlag I2CbitFlag.bits.b1
-#define tXFreshFalg I2CbitFlag.bits.b2
+#define I2CHBBBak I2CbitFlag.bits.b2
+#define tXFreshFalg I2CbitFlag.bits.b3
+
+volatile _TKS_FLAGA_type I2CboardFlag;
+#define boardBLEFlag I2CboardFlag.bits.b0
+/******************************************/
 
 /******************************************/
-extern _USR_FLAGA_type ledState[5];
-extern uchar beepCount;
-extern uchar k_count[2];
-/******************************************/
-uchar getCheckSum(uchar* data);
+
 void refreshTxData(void);
 //==============================================
 //**********************************************
@@ -102,12 +104,21 @@ void USER_I2C_INITIAL()
 
 void USER_I2C()
 {
-    uchar checkSum;
+    boardBLEFlag = BLE_ON;
     if (_hbb != I2CHBBBak)
     {
         I2CHBBBak = _hbb;
         if (_hbb == 0)
             tXFreshFalg = 0;
+    }
+    if ((rxStep == 3) && (tXFreshFalg == 0))
+    {
+        uchar len = rxBuff[3] + 5;
+        rxStep    = 0;
+        memcpy(I2cDataOut, rxBuff, len);
+        memcpy(rxBuff, rxBuff + len, rxCount - len);
+        rxCount -= len;
+        tXFreshFalg = 1;
     }
     if ((I2COutFlag == 1) && (tXFreshFalg == 0))
     {
@@ -116,10 +127,11 @@ void USER_I2C()
     }
     if ((_hbb == 0) & I2CInFlag)
     {
-        I2CInFlag = 0;
-        checkSum  = getCheckSum(I2cDataIn);
-
-        if (checkSum == I2cDataIn[I2cDataIn[3] + 4])
+        uchar checkSum, checkValue;
+        I2CInFlag  = 0;
+        checkSum   = getCheckSum(I2cDataIn);
+        checkValue = I2cDataIn[I2cDataIn[3] + 4];
+        if (checkSum == checkValue)
         {
             switch (I2cDataIn[2])
             {
@@ -160,14 +172,16 @@ void refreshTxData(void)
     I2cDataOut[0] = 0xff;
     I2cDataOut[1] = 0xa5;
     I2cDataOut[2] = CMD_KEY;
-    I2cDataOut[3] = 2;
-    I2cDataOut[6] = I2cDataOut[0];
-    I2cDataOut[6] += I2cDataOut[1];
-    I2cDataOut[6] += I2cDataOut[2];
-    I2cDataOut[6] += I2cDataOut[3];
-    for (i = 0; i < I2cDataOut[3]; i++)
-    {
-        I2cDataOut[4 + i] = k_count[i];
-        I2cDataOut[6] += I2cDataOut[4 + i];
-    }
+    I2cDataOut[3] = 3;
+    I2cDataOut[4] = k_count[0];
+    I2cDataOut[5] = k_count[1];
+    I2cDataOut[6] = I2CboardFlag.byte;
+
+    I2cDataOut[7] = I2cDataOut[0];
+    I2cDataOut[7] += I2cDataOut[1];
+    I2cDataOut[7] += I2cDataOut[2];
+    I2cDataOut[7] += I2cDataOut[3];
+    I2cDataOut[7] += I2cDataOut[4];
+    I2cDataOut[7] += I2cDataOut[5];
+    I2cDataOut[7] += I2cDataOut[6];
 }
