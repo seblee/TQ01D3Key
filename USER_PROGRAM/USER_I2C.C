@@ -148,6 +148,7 @@ void USER_I2C()
                     beepCount += I2cDataIn[8];
                     break;
                 case CMD_REG:
+                    regDataOk = 1;
                     break;
                 default:
                     break;

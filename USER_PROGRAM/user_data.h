@@ -9,6 +9,7 @@ extern _USR_FLAGA_type ledState[5];
 extern uchar beepCount;
 extern volatile uchar k_count[2];
 extern uchar I2cDataOut[20];
+extern uchar I2cDataIn[20];
 
 extern volatile _TKS_FLAGA_type BLEbitFlag;
 #define BLEInit BLEbitFlag.bits.b0
@@ -17,7 +18,7 @@ extern volatile _TKS_FLAGA_type BLEbitFlag;
 #define commandMode BLEbitFlag.bits.b3
 #define commandOK BLEbitFlag.bits.b4
 #define timeToTrans BLEbitFlag.bits.b5
-#define recBLEOK BLEbitFlag.bits.b6
+#define regDataOk BLEbitFlag.bits.b6
 
 #define RXMAX 40
 extern uchar rxBuff[RXMAX];

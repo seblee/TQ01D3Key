@@ -133,6 +133,11 @@ void USER_BLE_INITIAL()
 void USER_BLE()
 {
     rxProcess();
+    if ((txCount == 0) && (commandMode == 0) && (regDataOk == 1) && (BLE_ON == 0))
+    {
+        pushCmdSendBuff(BLE_TRANSMISSION, I2cDataIn);
+        regDataOk = 0;
+    }
     if (delayCount)
     {
         if (TKS_63MSF)
@@ -141,8 +146,6 @@ void USER_BLE()
     }
     if (TKS_63MSF)
         timeToTrans = 1;
-    if ((txCount == 0) && (commandMode == 0) && ((rxCount >= 20)))
-        pushCmdSendBuff(BLE_TRANSMISSION, rxBuff);
 
     if (!BLEInit)
     {
@@ -232,6 +235,7 @@ void bleInitialization()
             }
             break;
         default:
+            break;
     }
 }
 
@@ -241,10 +245,9 @@ void pushCmdSendBuff(ble_cmd_t cmd, const char *data)
     memset(txBuff, 0, sizeof(txBuff));
     if (cmd == BLE_TRANSMISSION)
     {
-        memcpy(txBuff, data, rxCount);
-        txCount    = rxCount;
+        txCount = *(data + 3) + 5;
+        memcpy(txBuff, data, txCount);
         txCountBak = txCount;
-        rxCount    = 0;
     }
     else
     {
