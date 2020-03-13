@@ -150,7 +150,6 @@ void USER_BLE()
     if (!BLEInit)
     {
         bleInitialization();
-        return;
     }
     else
     {

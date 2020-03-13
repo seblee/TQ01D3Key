@@ -144,7 +144,6 @@ void USER_I2C()
                     ledState[1].byte = I2cDataIn[5];
                     ledState[2].byte = I2cDataIn[6];
                     ledState[3].byte = I2cDataIn[7];
-                    ledState[4].byte = I2cDataIn[8];
                     beepCount += I2cDataIn[8];
                     break;
                 case CMD_REG:

@@ -5,7 +5,7 @@
 
 #define BLE_ON _pc2
 
-extern _USR_FLAGA_type ledState[5];
+extern volatile _USR_FLAGA_type ledState[4];
 extern uchar beepCount;
 extern volatile uchar k_count[2];
 extern uchar I2cDataOut[20];
