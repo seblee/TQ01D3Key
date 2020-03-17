@@ -85,10 +85,11 @@ enum
 
 enum
 {
-    CMD_IDEL,
-    CMD_KEY,
-    CMD_LED,
-    CMD_REG,
+    I2C_IDEL,
+    I2C_KEY,
+    I2C_LED,
+    I2C_REG_UP,
+    I2C_REG_DOWN,
 };
 
 #endif

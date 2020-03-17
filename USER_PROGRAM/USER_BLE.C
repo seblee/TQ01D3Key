@@ -10,7 +10,7 @@
 
 /**************************************/
 volatile _TKS_FLAGA_type BLEbitFlag;
-const uchar protocolHeader[] = {0xff, 0xa5};
+const uchar protocolHeader[2] = {0xff, 0xa5};
 /**************************************/
 
 uchar rxCount       = 0;

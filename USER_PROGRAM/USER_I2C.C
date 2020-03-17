@@ -7,6 +7,8 @@
 uchar I2cDataIn[20]  = {0xff, 0xa5};
 uchar I2cDataOut[20] = {0xff, 0xa5};
 
+uchar BleDataTemp[20] = {0};
+
 static uchar inIndex = 0, outIndex = 0;
 
 volatile _TKS_FLAGA_type I2CbitFlag;
@@ -14,6 +16,7 @@ volatile _TKS_FLAGA_type I2CbitFlag;
 #define I2COutFlag I2CbitFlag.bits.b1
 #define I2CHBBBak I2CbitFlag.bits.b2
 #define tXFreshFalg I2CbitFlag.bits.b3
+#define bleDataReday I2CbitFlag.bits.b4
 
 volatile _TKS_FLAGA_type I2CboardFlag;
 #define boardBLEFlag I2CboardFlag.bits.b0
@@ -109,20 +112,33 @@ void USER_I2C()
     {
         I2CHBBBak = _hbb;
         if (_hbb == 0)
+        {
             tXFreshFalg = 0;
+            I2COutFlag  = 0;
+        }
     }
-    if ((rxStep == 3) && (tXFreshFalg == 0))
+    if (rxStep == 3)
     {
         uchar len = rxBuff[3] + 5;
         rxStep    = 0;
-        memcpy(I2cDataOut, rxBuff, len);
+        memcpy(BleDataTemp, rxBuff, len);
         memcpy(rxBuff, rxBuff + len, rxCount - len);
         rxCount -= len;
-        tXFreshFalg = 1;
+        bleDataReday = 1;
     }
     if ((I2COutFlag == 1) && (tXFreshFalg == 0))
     {
-        refreshTxData();
+        if (bleDataReday)
+        {
+            bleDataReday = 0;
+            memcpy(I2cDataOut + 2, BleDataTemp + 2, 18);
+            memset(BleDataTemp, 0, 20);
+        }
+        else
+        {
+            refreshTxData();
+        }
+
         tXFreshFalg = 1;
     }
     if ((_hbb == 0) & I2CInFlag)
@@ -135,21 +151,21 @@ void USER_I2C()
         {
             switch (I2cDataIn[2])
             {
-                case CMD_IDEL:
+                case I2C_IDEL:
                     break;
-                case CMD_KEY:
+                case I2C_KEY:
                     break;
-                case CMD_LED:
+                case I2C_LED:
                     ledState[0].byte = I2cDataIn[4];
                     ledState[1].byte = I2cDataIn[5];
                     ledState[2].byte = I2cDataIn[6];
                     ledState[3].byte = I2cDataIn[7];
                     beepCount += I2cDataIn[8];
                     break;
-                case CMD_REG:
+                case I2C_REG_UP:
                     regDataOk = 1;
                     break;
-                default:
+                case I2C_REG_DOWN:
                     break;
             }
         }
@@ -171,7 +187,7 @@ void refreshTxData(void)
     uchar checkSum;
     I2cDataOut[0] = 0xff;
     I2cDataOut[1] = 0xa5;
-    I2cDataOut[2] = CMD_KEY;
+    I2cDataOut[2] = I2C_KEY;
     I2cDataOut[3] = 3;
     I2cDataOut[4] = k_count[0];
     I2cDataOut[5] = k_count[1];

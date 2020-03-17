@@ -23,7 +23,7 @@ uchar beepCount = 1;
 #define LED2 _pa5
 #define LED3 _pa6
 #define LED4 _pa7
-#define LED5 _pc4
+#define LED5 _pc4 
 #define LED6 _pc5
 #define LED7 _pc6
 #define LED8 _pc7
@@ -32,14 +32,7 @@ uchar ledFlashFast[8]     = {0};
 volatile uchar flashCount = 0;
 
 volatile _USR_FLAGA_type ledState[4];
-#define led1State ledState[0].s4bits.s0
-#define led2State ledState[0].s4bits.s1
-#define led3State ledState[1].s4bits.s0
-#define led4State ledState[1].s4bits.s1
-#define led5State ledState[2].s4bits.s0
-#define led6State ledState[2].s4bits.s1
-#define led7State ledState[3].s4bits.s0
-#define led8State ledState[3].s4bits.s1
+
 /*************************************/
 volatile _TKS_FLAGA_type bitFlag;
 #define beepFlag bitFlag.bits.b0
