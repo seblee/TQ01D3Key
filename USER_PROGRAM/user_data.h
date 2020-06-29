@@ -6,14 +6,14 @@
 #define BLE_ON _pc2
 
 extern volatile _USR_FLAGA_type ledState[4];
-#define led1State ledState[0].s4bits.s0
-#define led2State ledState[0].s4bits.s1
-#define led3State ledState[1].s4bits.s0
-#define led4State ledState[1].s4bits.s1
-#define led5State ledState[2].s4bits.s0
-#define led6State ledState[2].s4bits.s1
-#define led7State ledState[3].s4bits.s0
-#define led8State ledState[3].s4bits.s1
+#define led00State ledState[0].s4bits.s0
+#define led01State ledState[0].s4bits.s1
+#define led02State ledState[1].s4bits.s0
+#define led03State ledState[1].s4bits.s1
+#define led04State ledState[2].s4bits.s0
+#define led05State ledState[2].s4bits.s1
+#define led06State ledState[3].s4bits.s0
+#define led07State ledState[3].s4bits.s1
 
 extern uchar beepCount;
 extern volatile uchar k_count[2];
