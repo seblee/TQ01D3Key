@@ -6,23 +6,32 @@
     <project>
         <mcu>BS66F360</mcu>
         <package>44LQFP</package>
-        <path>D:\MyCloud\TQWorking\TQ01D3\TQ01D3Key</path>
-        <name>TQ01D3Key</name>
+        <path>D:\MyCloud\TQWorking\T12\TQ04D1Key\TQ04D1Key</path>
+        <name>TQ04D1Key</name>
         <library name="BS66F360_LIBV413" version="BS66F360_LIBV413" />
     </project>
     <global />
-    <mcuconfig list_mode="0" list_simple="0">
+    <mcuconfig list_mode="0" list_simple="1">
         <key index="20">
             <match_pin>15</match_pin>
-        </key>
-        <key index="19">
-            <match_pin>16</match_pin>
         </key>
         <key index="18">
             <match_pin>17</match_pin>
         </key>
-        <key index="17">
-            <match_pin>18</match_pin>
+        <key index="16">
+            <match_pin>19</match_pin>
+        </key>
+        <key index="11">
+            <match_pin>23</match_pin>
+        </key>
+        <key index="12">
+            <match_pin>22</match_pin>
+        </key>
+        <key index="27">
+            <match_pin>8</match_pin>
+        </key>
+        <key index="28">
+            <match_pin>7</match_pin>
         </key>
     </mcuconfig>
     <usrwnd>

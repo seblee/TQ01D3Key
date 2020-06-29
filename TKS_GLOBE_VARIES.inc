@@ -1,7 +1,7 @@
 ; ========================================================================================================================
 ; * Created by: Holtek Touch MCU Workshop, Version 3.5.3.0
 ; TKS_GLOBE_VARIES.inc
-; 09:30:31 AM Tuesday, December 24, 2019
+; 04:47:45 PM Monday, June 29, 2020
 ; ========================================================================================================================
 #include "BS66F360.inc"
 #define _BS66F360_
@@ -10,9 +10,9 @@
 #define IO              0
 #define KEY             1
 ; Keys' attribute & settings ...
-#define KEY28           IO
+#define KEY28           KEY
 #define Key28Threshold  16
-#define KEY27           IO
+#define KEY27           KEY
 #define Key27Threshold  16
 #define KEY26           IO
 #define Key26Threshold  16
@@ -28,21 +28,21 @@
 #define Key21Threshold  16
 #define KEY20           KEY
 #define Key20Threshold  16
-#define KEY19           KEY
+#define KEY19           IO
 #define Key19Threshold  16
 #define KEY18           KEY
 #define Key18Threshold  16
-#define KEY17           KEY
+#define KEY17           IO
 #define Key17Threshold  16
-#define KEY16           IO
+#define KEY16           KEY
 #define Key16Threshold  16
 #define KEY15           IO
 #define Key15Threshold  16
 #define KEY14           IO
 #define Key14Threshold  16
-#define KEY12           IO
+#define KEY12           KEY
 #define Key12Threshold  16
-#define KEY11           IO
+#define KEY11           KEY
 #define Key11Threshold  16
 #define KEY10           IO
 #define Key10Threshold  16
@@ -66,7 +66,7 @@
 #define Key6Threshold   16
 #define KEY13           IO
 #define Key13Threshold  16
-#define IO_TOUCH_ATTR   00000000000011110000000000000000b
+#define IO_TOUCH_ATTR   00001100000010101000110000000000b
 #define IO_TOUCH_ATTR2  0000b
 ; Components' settings ...
 ; Global options' settings ...
@@ -82,4 +82,4 @@
 #define MovingCalibration 1 	; check
 #define GlobeOptionA    (DebounceTimes | (AutoCalibrationPeriod << 4))
 #define GlobeOptionB    (HighSensitive | (MaximumKeyHoldTime << 4))
-#define GlobeOptionC    ((FastResponse << 2) | (AutoFrequencyHopping << 3) | (PowerSave << 6) | (NoiseProtect << 4) | (OneKeyActive << 5) | (MovingCalibration << 7))
+#define GlobeOptionC    ((AutoFrequencyHopping << 3) | (FastResponse << 2) | (MovingCalibration << 7) | (NoiseProtect << 4) | (OneKeyActive << 5) | (PowerSave << 6))
