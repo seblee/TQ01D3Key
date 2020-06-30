@@ -9,10 +9,11 @@
 volatile _TKS_FLAGA_type keyTrg[2];
 volatile uchar k_count[2];
 
-#define keyNUM 4
+#define keyNUM 7
 #define RESTAIN_TIMES 200  // 200 × 10ms = 2s
-#define KEYMASK 0x07
-#define RESTAINMASK 0x08
+uchar keyBeepMask[2] = {0xff, 0xff};
+#define KEYMASK keyBeepMask[0]
+#define RESTAINMASK keyBeepMask[1]
 uchar keyTime[keyNUM] = {0};
 uchar keyData         = 0;
 /*****beep**************************/
@@ -34,11 +35,11 @@ uchar beepCount = 1;
 #define LED12 _pf2
 #define LED13 _pa1
 
-uchar ledFlashFast[8]     = {0};
+uchar ledFlashFast[14]    = {0};
 volatile uchar flashCount = 0;
 
-volatile _USR_FLAGA_type ledState[4];
-
+volatile _USR_FLAGA_type ledState[7];
+static uint ledValue = 0;
 /*************************************/
 volatile _TKS_FLAGA_type bitFlag;
 #define beepFlag bitFlag.bits.b0
@@ -49,7 +50,7 @@ volatile _TKS_FLAGA_type bitFlag;
 #define flashFlag_2HZ bitFlag.bits.b6
 
 /******************************************/
-
+void ledSetState(uchar num, ledState_t state);
 /******************************************/
 //==============================================
 //**********************************************
@@ -117,7 +118,9 @@ void USER_PROGRAM_INITIAL()
 
     _sledc = 0xff;
     /******Data****************/
-    beepCount = 1;
+    beepCount   = 1;
+    KEYMASK     = 0xff;
+    RESTAINMASK = 0xff;
 }
 
 //==============================================
@@ -155,13 +158,12 @@ void USER_PROGRAM()
     if (SCAN_CYCLEF)
     {
         GET_KEY_BITMAP();
-        keyData = ((DATA_BUF[1] & 0x0c) >> 2) | ((DATA_BUF[1] & 0x80) >> 5) | ((DATA_BUF[2] & 0x02) << 3) |
-                  ((DATA_BUF[2] & 0x08) << 2) | ((DATA_BUF[3] & 0x0c) << 4);  //& 0x0f;
+        keyData = ((DATA_BUF[1] & 0x0c) >> 2) | ((DATA_BUF[1] & 0x80) >> 5) | ((DATA_BUF[2] & 0x02) << 2) |
+                  ((DATA_BUF[2] & 0x08) << 1) | ((DATA_BUF[3] & 0x0c) << 3);  //& 0x0f;
 
         keyTrg[0].byte = keyData & (keyData ^ k_count[0]);
         k_count[0]     = keyData;
-
-        if (keyTrg[0].byte)
+        if (keyTrg[0].byte & KEYMASK)
         {
             beepCount++;
         }
@@ -188,7 +190,7 @@ void USER_PROGRAM()
         }
         keyTrg[1].byte = keyRestain & (keyRestain ^ k_count[1]);
         k_count[1]     = keyRestain;
-        if (keyTrg[1].byte)
+        if (keyTrg[1].byte & RESTAINMASK)
         {
             beepCount++;
         }
@@ -259,539 +261,250 @@ void USER_LED()
             }
         }
     }
-    /*******led0****************/
-    if (ledFlashFast[0] > 0)
+
+    /***************************/
+    if (TKS_63MSF || TKS_250MSF || TKS_500MSF)
     {
-        if (led00State == STATE_LED_FLASH_2_T)
+        uchar i, value, State;
+        uint ledValueTemp = ledValue;
+        for (i = 0; i < LEDNUM; i++)
         {
-            ledFlashFast[0] += 4;
-        }
-        if (TKS_63MSF)
-        {
-            ledFlashFast[0]--;
-            LED00 = !LED00;
+            value = ((ledValueTemp >> i) & 1);
+            if (i % 2 == 0)
+            {
+                State = ledState[i / 2].byte & 0x0f;
+            }
+            else
+            {
+                State = (ledState[i / 2].byte >> 4);
+            }
+
+            if (ledFlashFast[i] > 0)
+            {
+                if (State >= STATE_LED_FLASH_1_T)
+                {
+                    ledFlashFast[i] += 2 * (State - STATE_LED_FLASH_0_5HZ);
+                    if (i % 2 == 0)
+                    {
+                        ledState[i / 2].byte &= 0xf0;
+                    }
+                    else
+                    {
+                        ledState[i / 2].byte &= 0x0f;
+                    }
+                }
+                if (TKS_63MSF)
+                {
+                    ledFlashFast[i]--;
+                    value = !((ledValueTemp >> i) & 1);
+                }
+            }
+            else
+            {
+                switch (State)
+                {
+                    case STATE_LED_OFF:
+                        value = LED_OFF;
+                        break;
+                    case STATE_LED_ON:
+                        value = LED_ON;
+                        break;
+                    case STATE_LED_FLASH_2HZ:
+                        if (TKS_250MSF)
+                            value = flashFlag_2HZ;
+                        break;
+                    case STATE_LED_FLASH_1HZ:
+                        if (TKS_500MSF)
+                            value = flashFlag_1HZ;
+                        break;
+                    case STATE_LED_FLASH_0_5HZ:
+                        if (TKS_500MSF)
+                            value = flashFlag_0_5HZ;
+                        break;
+                    case STATE_LED_FLASH_1_T:  //闪烁一下
+                    case STATE_LED_FLASH_2_T:  //闪烁两下
+                    case STATE_LED_FLASH_3_T:  //闪烁三下
+                        ledFlashFast[i] += 2 * (State - STATE_LED_FLASH_0_5HZ);
+                        if (i % 2 == 0)
+                        {
+                            ledState[i / 2].byte &= 0xf0;
+                        }
+                        else
+                        {
+                            ledState[i / 2].byte &= 0x0f;
+                        }
+                        break;
+                }
+            }
+            if (value)
+            {
+                ledValueTemp |= 1 << i;
+            }
+            else
+            {
+                ledValueTemp &= ~(1 << i);
+            }
+            if (ledValueTemp ^ ledValue)
+            {
+                if (ledValueTemp & (1 << i))
+                {
+                    ledSetState(i, LED_OFF);
+                }
+                else
+                {
+                    ledSetState(i, LED_ON);
+                }
+            }
+            ledValue = ledValueTemp;
         }
     }
-    else
+}
+
+void ledSetState(uchar num, ledState_t state)
+{
+    switch (num)
     {
-        switch (led00State)
-        {
-            case STATE_LED_OFF:
-                LED00 = LED_OFF;
-                break;
-            case STATE_LED_ON:
+        case LEDNUM00:
+            if (state == LEDON)
+            {
                 LED00 = LED_ON;
-                break;
-            case STATE_LED_FLASH_2HZ:
-                if (TKS_250MSF)
-                    LED00 = flashFlag_2HZ;
-                break;
-            case STATE_LED_FLASH_1HZ:
-                if (TKS_500MSF)
-                    LED00 = flashFlag_1HZ;
-                break;
-            case STATE_LED_FLASH_0_5HZ:
-                if (TKS_500MSF)
-                    LED00 = flashFlag_0_5HZ;
-                break;
-            case STATE_LED_FLASH_2_T:  //闪烁两下
-                ledFlashFast[0] += 4;
-                led00State = 0;
-                break;
-        }
-    }
-    /*******led01****************/
-    if (ledFlashFast[1] > 0)
-    {
-        if (led01State == STATE_LED_FLASH_2_T)
-        {
-            ledFlashFast[1] += 4;
-        }
-        if (TKS_63MSF)
-        {
-            ledFlashFast[1]--;
-            LED01 = !LED01;
-        }
-    }
-    else
-    {
-        switch (led01State)
-        {
-            case STATE_LED_OFF:
-                LED01 = LED_OFF;
-                break;
-            case STATE_LED_ON:
+            }
+            else
+            {
+                LED00 = LED_OFF;
+            }
+            break;
+        case LEDNUM01:
+            if (state == LEDON)
+            {
                 LED01 = LED_ON;
-                break;
-            case STATE_LED_FLASH_2HZ:
-                if (TKS_250MSF)
-                    LED01 = flashFlag_2HZ;
-                break;
-            case STATE_LED_FLASH_1HZ:
-                if (TKS_500MSF)
-                    LED01 = flashFlag_1HZ;
-                break;
-            case STATE_LED_FLASH_0_5HZ:
-                if (TKS_500MSF)
-                    LED01 = flashFlag_0_5HZ;
-                break;
-            case STATE_LED_FLASH_2_T:  //闪烁两下
-                ledFlashFast[1] += 4;
-                led01State = 0;
-                break;
-        }
-    }
-    /*******LED02****************/
-    if (ledFlashFast[2] > 0)
-    {
-        if (led02State == STATE_LED_FLASH_2_T)
-        {
-            ledFlashFast[2] += 4;
-        }
-        if (TKS_63MSF)
-        {
-            ledFlashFast[2]--;
-            LED02 = !LED02;
-        }
-    }
-    else
-    {
-        switch (led02State)
-        {
-            case STATE_LED_OFF:
-                LED02 = LED_OFF;
-                break;
-            case STATE_LED_ON:
+            }
+            else
+            {
+                LED01 = LED_OFF;
+            }
+            break;
+        case LEDNUM02:
+            if (state == LEDON)
+            {
                 LED02 = LED_ON;
-                break;
-            case STATE_LED_FLASH_2HZ:
-                if (TKS_250MSF)
-                    LED02 = flashFlag_2HZ;
-                break;
-            case STATE_LED_FLASH_1HZ:
-                if (TKS_500MSF)
-                    LED02 = flashFlag_1HZ;
-                break;
-            case STATE_LED_FLASH_0_5HZ:
-                if (TKS_500MSF)
-                    LED02 = flashFlag_0_5HZ;
-                break;
-            case STATE_LED_FLASH_2_T:  //闪烁两下
-                ledFlashFast[2] += 4;
-                led02State = 0;
-                break;
-        }
-    }
-    /*******LED03****************/
-    if (ledFlashFast[3] > 0)
-    {
-        if (led03State == STATE_LED_FLASH_2_T)
-        {
-            ledFlashFast[3] += 4;
-        }
-        if (TKS_63MSF)
-        {
-            ledFlashFast[3]--;
-            LED03 = !LED03;
-        }
-    }
-    else
-    {
-        switch (led03State)
-        {
-            case STATE_LED_OFF:
-                LED03 = LED_OFF;
-                break;
-            case STATE_LED_ON:
+            }
+            else
+            {
+                LED02 = LED_OFF;
+            }
+            break;
+        case LEDNUM03:
+            if (state == LEDON)
+            {
                 LED03 = LED_ON;
-                break;
-            case STATE_LED_FLASH_2HZ:
-                if (TKS_250MSF)
-                    LED03 = flashFlag_2HZ;
-                break;
-            case STATE_LED_FLASH_1HZ:
-                if (TKS_500MSF)
-                    LED03 = flashFlag_1HZ;
-                break;
-            case STATE_LED_FLASH_0_5HZ:
-                if (TKS_500MSF)
-                    LED03 = flashFlag_0_5HZ;
-                break;
-            case STATE_LED_FLASH_2_T:  //闪烁两下
-                ledFlashFast[3] += 4;
-                led03State = 0;
-                break;
-        }
-    }
-
-    /*******LED04****************/
-    if (ledFlashFast[4] > 0)
-    {
-        if (led04State == STATE_LED_FLASH_2_T)
-        {
-            ledFlashFast[4] += 4;
-        }
-        if (TKS_63MSF)
-        {
-            ledFlashFast[4]--;
-            LED04 = !LED04;
-        }
-    }
-    else
-    {
-        switch (led04State)
-        {
-            case STATE_LED_OFF:
-                LED04 = LED_OFF;
-                break;
-            case STATE_LED_ON:
+            }
+            else
+            {
+                LED03 = LED_OFF;
+            }
+            break;
+        case LEDNUM04:
+            if (state == LEDON)
+            {
                 LED04 = LED_ON;
-                break;
-            case STATE_LED_FLASH_2HZ:
-                if (TKS_250MSF)
-                    LED04 = flashFlag_2HZ;
-                break;
-            case STATE_LED_FLASH_1HZ:
-                if (TKS_500MSF)
-                    LED04 = flashFlag_1HZ;
-                break;
-            case STATE_LED_FLASH_0_5HZ:
-                if (TKS_500MSF)
-                    LED04 = flashFlag_0_5HZ;
-                break;
-            case STATE_LED_FLASH_2_T:  //闪烁两下
-                ledFlashFast[4] += 4;
-                led04State = 0;
-                break;
-        }
-    }
-    /*******LED05****************/
-    if (ledFlashFast[5] > 0)
-    {
-        if (led05State == STATE_LED_FLASH_2_T)
-        {
-            ledFlashFast[5] += 4;
-        }
-        if (TKS_63MSF)
-        {
-            ledFlashFast[5]--;
-            LED05 = !LED05;
-        }
-    }
-    else
-    {
-        switch (led05State)
-        {
-            case STATE_LED_OFF:
-                LED05 = LED_OFF;
-                break;
-            case STATE_LED_ON:
+            }
+            else
+            {
+                LED04 = LED_OFF;
+            }
+            break;
+        case LEDNUM05:
+            if (state == LEDON)
+            {
                 LED05 = LED_ON;
-                break;
-            case STATE_LED_FLASH_2HZ:
-                if (TKS_250MSF)
-                    LED05 = flashFlag_2HZ;
-                break;
-            case STATE_LED_FLASH_1HZ:
-                if (TKS_500MSF)
-                    LED05 = flashFlag_1HZ;
-                break;
-            case STATE_LED_FLASH_0_5HZ:
-                if (TKS_500MSF)
-                    LED05 = flashFlag_0_5HZ;
-                break;
-            case STATE_LED_FLASH_2_T:  //闪烁两下
-                ledFlashFast[5] += 4;
-                led05State = 0;
-                break;
-        }
-    }
-    /*******LED06****************/
-    if (ledFlashFast[6] > 0)
-    {
-        if (led06State == STATE_LED_FLASH_2_T)
-        {
-            ledFlashFast[6] += 4;
-        }
-        if (TKS_63MSF)
-        {
-            ledFlashFast[6]--;
-            LED06 = !LED06;
-        }
-    }
-    else
-    {
-        switch (led06State)
-        {
-            case STATE_LED_OFF:
-                LED06 = LED_OFF;
-                break;
-            case STATE_LED_ON:
+            }
+            else
+            {
+                LED05 = LED_OFF;
+            }
+            break;
+        case LEDNUM06:
+            if (state == LEDON)
+            {
                 LED06 = LED_ON;
-                break;
-            case STATE_LED_FLASH_2HZ:
-                if (TKS_250MSF)
-                    LED06 = flashFlag_2HZ;
-                break;
-            case STATE_LED_FLASH_1HZ:
-                if (TKS_500MSF)
-                    LED06 = flashFlag_1HZ;
-                break;
-            case STATE_LED_FLASH_0_5HZ:
-                if (TKS_500MSF)
-                    LED06 = flashFlag_0_5HZ;
-                break;
-            case STATE_LED_FLASH_2_T:  //闪烁两下
-                ledFlashFast[6] += 4;
-                led06State = 0;
-                break;
-        }
-    }
-    /*******LED07****************/
-    if (ledFlashFast[7] > 0)
-    {
-        if (led07State == STATE_LED_FLASH_2_T)
-        {
-            ledFlashFast[7] += 4;
-        }
-        if (TKS_63MSF)
-        {
-            ledFlashFast[7]--;
-            LED07 = !LED07;
-        }
-    }
-    else
-    {
-        switch (led07State)
-        {
-            case STATE_LED_OFF:
-                LED07 = LED_OFF;
-                break;
-            case STATE_LED_ON:
+            }
+            else
+            {
+                LED06 = LED_OFF;
+            }
+            break;
+        case LEDNUM07:
+            if (state == LEDON)
+            {
                 LED07 = LED_ON;
-                break;
-            case STATE_LED_FLASH_2HZ:
-                if (TKS_250MSF)
-                    LED07 = flashFlag_2HZ;
-                break;
-            case STATE_LED_FLASH_1HZ:
-                if (TKS_500MSF)
-                    LED07 = flashFlag_1HZ;
-                break;
-            case STATE_LED_FLASH_0_5HZ:
-                if (TKS_500MSF)
-                    LED07 = flashFlag_0_5HZ;
-                break;
-            case STATE_LED_FLASH_2_T:  //闪烁两下
-                ledFlashFast[7] += 4;
-                led07State = 0;
-                break;
-        }
+            }
+            else
+            {
+                LED07 = LED_OFF;
+            }
+            break;
+        case LEDNUM08:
+            if (state == LEDON)
+            {
+                LED08 = LED_ON;
+            }
+            else
+            {
+                LED08 = LED_OFF;
+            }
+            break;
+        case LEDNUM09:
+            if (state == LEDON)
+            {
+                LED09 = LED_ON;
+            }
+            else
+            {
+                LED09 = LED_OFF;
+            }
+            break;
+        case LEDNUM10:
+            if (state == LEDON)
+            {
+                LED10 = LED_ON;
+            }
+            else
+            {
+                LED10 = LED_OFF;
+            }
+            break;
+        case LEDNUM11:
+            if (state == LEDON)
+            {
+                LED11 = LED_ON;
+            }
+            else
+            {
+                LED11 = LED_OFF;
+            }
+            break;
+        case LEDNUM12:
+            if (state == LEDON)
+            {
+                LED12 = LED_ON;
+            }
+            else
+            {
+                LED12 = LED_OFF;
+            }
+            break;
+        case LEDNUM13:
+            if (state == LEDON)
+            {
+                LED13 = LED_ON;
+            }
+            else
+            {
+                LED13 = LED_OFF;
+            }
+            break;
+        default:
+            break;
     }
-
-    // {
-    //     if (led00State == STATE_LED_OFF)
-    //     {
-    //         LED00 = LED_OFF;
-    //     }
-    //     if (led01State == STATE_LED_OFF)
-    //     {
-    //         LED01 = LED_OFF;
-    //     }
-    //     if (led02State == STATE_LED_OFF)
-    //     {
-    //         LED02 = LED_OFF;
-    //     }
-    //     if (led03State == STATE_LED_OFF)
-    //     {
-    //         LED03 = LED_OFF;
-    //     }
-
-    //     if (led04State == STATE_LED_OFF)
-    //     {
-    //         LED04 = LED_OFF;
-    //     }
-
-    //     if (led05State == STATE_LED_OFF)
-    //     {
-    //         LED05 = LED_OFF;
-    //     }
-    //     if (led06State == STATE_LED_OFF)
-    //     {
-    //         LED06 = LED_OFF;
-    //     }
-    //     if (led07State == STATE_LED_OFF)
-    //     {
-    //         LED07 = LED_OFF;
-    //     }
-
-    //     if (led00State == STATE_LED_ON)
-    //     {
-    //         LED00 = LED_ON;
-    //     }
-    //     if (led01State == STATE_LED_ON)
-    //     {
-    //         LED01 = LED_ON;
-    //     }
-    //     if (led02State == STATE_LED_ON)
-    //     {
-    //         LED02 = LED_ON;
-    //     }
-    //     if (led03State == STATE_LED_ON)
-    //     {
-    //         LED03 = LED_ON;
-    //     }
-
-    //     if (led04State == STATE_LED_ON)
-    //     {
-    //         LED04 = LED_ON;
-    //     }
-
-    //     if (led05State == STATE_LED_ON)
-    //     {
-    //         LED05 = LED_ON;
-    //     }
-    //     if (led06State == STATE_LED_ON)
-    //     {
-    //         LED06 = LED_ON;
-    //     }
-    //     if (led07State == STATE_LED_ON)
-    //     {
-    //         LED07 = LED_ON;
-    //     }
-    // }
-
-    // if (TKS_250MSF)
-    // {
-    //     if (flashFlag_2HZ)
-    //     {
-    //         flashFlag_2HZ = 0;
-    //     }
-    //     else
-    //     {
-    //         flashFlag_2HZ = 1;
-    //     }
-    //     if (led00State == STATE_LED_FLASH_2HZ)
-    //     {
-    //         LED00 = flashFlag_2HZ;
-    //     }
-    //     if (led01State == STATE_LED_FLASH_2HZ)
-    //     {
-    //         LED01 = flashFlag_2HZ;
-    //     }
-    //     if (led02State == STATE_LED_FLASH_2HZ)
-    //     {
-    //         LED02 = flashFlag_2HZ;
-    //     }
-    //     if (led03State == STATE_LED_FLASH_2HZ)
-    //     {
-    //         LED03 = flashFlag_2HZ;
-    //     }
-
-    //     if (led04State == STATE_LED_FLASH_2HZ)
-    //     {
-    //         LED04 = flashFlag_2HZ;
-    //     }
-
-    //     if (led05State == STATE_LED_FLASH_2HZ)
-    //     {
-    //         LED05 = flashFlag_2HZ;
-    //     }
-    //     if (led06State == STATE_LED_FLASH_2HZ)
-    //     {
-    //         LED06 = flashFlag_2HZ;
-    //     }
-    //     if (led07State == STATE_LED_FLASH_2HZ)
-    //     {
-    //         LED07 = flashFlag_2HZ;
-    //     }
-    // }
-
-    // if (TKS_500MSF)
-    // {
-    //     if (flashFlag_1HZ)
-    //     {
-    //         flashFlag_1HZ = 0;
-    //     }
-    //     else
-    //     {
-    //         flashFlag_1HZ = 1;
-    //     }
-    //     if (led00State == STATE_LED_FLASH_1HZ)
-    //     {
-    //         LED00 = flashFlag_1HZ;
-    //     }
-    //     if (led01State == STATE_LED_FLASH_1HZ)
-    //     {
-    //         LED01 = flashFlag_1HZ;
-    //     }
-    //     if (led02State == STATE_LED_FLASH_1HZ)
-    //     {
-    //         LED02 = flashFlag_1HZ;
-    //     }
-    //     if (led03State == STATE_LED_FLASH_1HZ)
-    //     {
-    //         LED03 = flashFlag_1HZ;
-    //     }
-    //     if (led04State == STATE_LED_FLASH_1HZ)
-    //     {
-    //         LED04 = flashFlag_1HZ;
-    //     }
-    //     if (led05State == STATE_LED_FLASH_1HZ)
-    //     {
-    //         LED05 = flashFlag_1HZ;
-    //     }
-    //     if (led06State == STATE_LED_FLASH_1HZ)
-    //     {
-    //         LED06 = flashFlag_1HZ;
-    //     }
-    //     if (led07State == STATE_LED_FLASH_1HZ)
-    //     {
-    //         LED07 = flashFlag_1HZ;
-    //     }
-
-    //     if (flashFlag_1HZ)
-    //     {
-    //         if (flashFlag_0_5HZ)
-    //         {
-    //             flashFlag_0_5HZ = 0;
-    //         }
-    //         else
-    //         {
-    //             flashFlag_0_5HZ = 1;
-    //         }
-    //         if (led00State == STATE_LED_FLASH_0_5HZ)
-    //         {
-    //             LED00 = flashFlag_0_5HZ;
-    //         }
-    //         if (led01State == STATE_LED_FLASH_0_5HZ)
-    //         {
-    //             LED01 = flashFlag_0_5HZ;
-    //         }
-    //         if (led02State == STATE_LED_FLASH_0_5HZ)
-    //         {
-    //             LED02 = flashFlag_0_5HZ;
-    //         }
-    //         if (led03State == STATE_LED_FLASH_0_5HZ)
-    //         {
-    //             LED03 = flashFlag_0_5HZ;
-    //         }
-    //         if (led04State == STATE_LED_FLASH_0_5HZ)
-    //         {
-    //             LED04 = flashFlag_0_5HZ;
-    //         }
-    //         if (led05State == STATE_LED_FLASH_0_5HZ)
-    //         {
-    //             LED05 = flashFlag_0_5HZ;
-    //         }
-    //         if (led06State == STATE_LED_FLASH_0_5HZ)
-    //         {
-    //             LED06 = flashFlag_0_5HZ;
-    //         }
-    //         if (led07State == STATE_LED_FLASH_0_5HZ)
-    //         {
-    //             LED07 = flashFlag_0_5HZ;
-    //         }
-    //     }
-    // }
 }
