@@ -1,0 +1,11 @@
+
+;;******************************************************
+;;***** USER PROGRAM EXTERNAL REFERENCE FOR ASM CODE   *
+;;******************************************************
+
+EXTERN  _USER_SEGMENT_INITIAL   :NEAR
+EXTERN  _USER_SEGMENT           :NEAR
+
+
+
+

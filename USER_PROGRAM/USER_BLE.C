@@ -4,7 +4,7 @@
 #include "user_data.h"
 #include <string.h>
 /****************************************/
-#define UART_SW _pb6
+#define UART_SW _pc3
 #define PWR_ON _pb5
 #define WKUP _pb4
 
@@ -118,12 +118,13 @@ void USER_UART()
 void USER_BLE_INITIAL()
 {
     /********UART_SW *PWR_ON ********/
-    _pbc &= 0b10011111;
+    _pbc &= 0b11011111;
+    _pcc &= 0b11110111;
     /********WKUP**************/
     _pbc |= 0b00010000;
     /********BLE Connecetd**************/
-    _pcc |= 0b00000100;
-    _pcpu &= 0b11111011;
+    _pbc |= 0b10000000;
+    _pbpu &= 0b01111111;
 
     UART_SW         = 1;
     PWR_ON          = 1;
