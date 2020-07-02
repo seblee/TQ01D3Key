@@ -21,7 +21,7 @@ uchar keyData         = 0;
 uchar beepCount = 1;
 /*****led**************************/
 #define LED00 _pe1
-#define LED01 _pa7
+#define LED01 _pe1  //_pa7
 #define LED02 _pd6
 #define LED03 _pa6
 #define LED04 _pd2
@@ -69,14 +69,6 @@ void __attribute((interrupt(0x08))) Interrupt_INT1(void)
     GCC_NOP();
 }
 
-//==============================================
-//**********************************************
-// M. Funct. 0
-//==============================================
-void __attribute((interrupt(0x14))) Interrupt_MF0(void)
-{
-    GCC_NOP();
-}
 //==============================================
 //**********************************************
 // M. Funct. 1
