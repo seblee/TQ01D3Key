@@ -46,4 +46,6 @@ extern uchar rxCount;
 
 uchar getCheckSum(uchar* data);
 
+extern uint segmentValue[3];
+
 #endif

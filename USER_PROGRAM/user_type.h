@@ -114,6 +114,7 @@ enum
     CMD_AUX_DIAI = 5,
     CMD_AUX_DO   = 6,
     CMD_PARA     = 7,
+    CMD_SEGMENT  = 8,
 };
 
 #endif

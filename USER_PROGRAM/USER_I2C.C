@@ -176,6 +176,9 @@ void USER_I2C()
                     keyBeepMask[1] = I2cDataIn[5];
                     boardPARAFlag  = 1;
                     break;
+                case CMD_SEGMENT:
+                    memcpy(segmentValue, &I2cDataIn[4], 6);
+                    break;
                 default:
                     break;
             }
