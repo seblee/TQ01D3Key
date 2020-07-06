@@ -4,9 +4,9 @@
 #include "user_data.h"
 #include <string.h>
 /****************************************/
-#define UART_SW _pc3
-#define PWR_ON _pb5
-#define WKUP _pb4
+#define UART_SW _pb7
+#define PWR_ON _pc3
+#define WKUP _pb5
 
 /**************************************/
 volatile _TKS_FLAGA_type BLEbitFlag;
@@ -15,7 +15,7 @@ const uchar protocolHeader[2] = {0xff, 0xa5};
 
 uchar rxCount       = 0;
 uchar rxStep        = 0;
-uchar txBuff[30]    = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0x0a};
+uchar txBuff[RXMAX] = {0};
 uchar rxBuff[RXMAX] = {0};
 uchar txCount       = 0;
 uchar txCountBak    = 0;
@@ -118,13 +118,13 @@ void USER_UART()
 void USER_BLE_INITIAL()
 {
     /********UART_SW *PWR_ON ********/
-    _pbc &= 0b11011111;
+    _pbc &= 0b01111111;
     _pcc &= 0b11110111;
     /********WKUP**************/
-    _pbc |= 0b00010000;
+    _pbc |= 0b00100000;
     /********BLE Connecetd**************/
-    _pbc |= 0b10000000;
-    _pbpu &= 0b01111111;
+    _pbc |= 0b00010000;
+    _pbpu &= 0b11101111;
 
     UART_SW         = 1;
     PWR_ON          = 1;

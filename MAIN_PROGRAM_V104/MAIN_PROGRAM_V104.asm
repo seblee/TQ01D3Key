@@ -81,7 +81,7 @@ endif
                 ;==============
 PROGRAM_ENTRY   .SECTION  AT 000H 'CODE'
         ifdef   PBP
-                CLR     PBP
+                  CLR     PBP
                 ifndef  ESCpowerIDcheck
                 MOV     A,042H      ;ASCII = B
                 endif

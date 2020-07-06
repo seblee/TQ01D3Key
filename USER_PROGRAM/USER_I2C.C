@@ -108,7 +108,7 @@ void USER_I2C_INITIAL()
 
 void USER_I2C()
 {
-    boardBLEFlag = BLE_ON;
+    boardBLEFlag = !BLE_ON;
     if (_hbb != I2CHBBBak)
     {
         I2CHBBBak = _hbb;

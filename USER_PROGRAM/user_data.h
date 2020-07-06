@@ -3,7 +3,7 @@
 
 #include "user_type.h"
 
-#define BLE_ON _pb7
+#define BLE_ON _pb4
 
 #define LEDNUM 14
 

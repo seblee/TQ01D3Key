@@ -24,9 +24,9 @@ uchar beepCount = 1;
 #define LED01 _pa7
 #define LED02 _pd6
 #define LED03 _pa6
-#define LED04 _pd2
-#define LED05 _pc4
-#define LED06 _pd1
+#define LED04 _pd3
+#define LED05 _pc5
+#define LED06 _pd2
 #define LED07 _pe6
 #define LED08 _pf5
 #define LED09 _pf3
@@ -150,7 +150,7 @@ void USER_PROGRAM()
     if (SCAN_CYCLEF)
     {
         GET_KEY_BITMAP();
-        keyData = ((DATA_BUF[1] & 0x0c) >> 2) | ((DATA_BUF[1] & 0x80) >> 5) | ((DATA_BUF[2] & 0x02) << 2) |
+        keyData = ((DATA_BUF[1] & 0x08) >> 3) | ((DATA_BUF[1] & 0x20) >> 4) | ((DATA_BUF[2] & 0x03) << 2) |
                   ((DATA_BUF[2] & 0x08) << 1) | ((DATA_BUF[3] & 0x0c) << 3);  //& 0x0f;
 
         keyTrg[0].byte = keyData & (keyData ^ k_count[0]);
@@ -194,9 +194,9 @@ void USER_LED_INITIAL()
     /********LED**************/
     _pac &= 0b00011101;
     /********LED**************/
-    _pcc &= 0b11101111;
+    _pcc &= 0b11011111;
     /********LED**************/
-    _pdc &= 0b10111001;
+    _pdc &= 0b10110011;
     /********LED***BEEP***********/
     _pec &= 0b00110101;
     /********LED**************/

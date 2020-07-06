@@ -32,17 +32,17 @@
 #define Key19Threshold  16
 #define KEY18           KEY
 #define Key18Threshold  16
-#define KEY17           IO
+#define KEY17           KEY
 #define Key17Threshold  16
-#define KEY16           KEY
+#define KEY16           IO
 #define Key16Threshold  16
 #define KEY15           IO
 #define Key15Threshold  16
-#define KEY14           IO
+#define KEY14           KEY
 #define Key14Threshold  16
 #define KEY12           KEY
 #define Key12Threshold  16
-#define KEY11           KEY
+#define KEY11           IO
 #define Key11Threshold  16
 #define KEY10           IO
 #define Key10Threshold  16
@@ -66,7 +66,7 @@
 #define Key6Threshold   16
 #define KEY13           IO
 #define Key13Threshold  16
-#define IO_TOUCH_ATTR   00001100000010101000110000000000b
+#define IO_TOUCH_ATTR   00001100000010110010100000000000b
 #define IO_TOUCH_ATTR2  0000b
 ; Components' settings ...
 ; Global options' settings ...
