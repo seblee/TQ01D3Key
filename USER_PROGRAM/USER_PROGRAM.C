@@ -35,6 +35,8 @@ uchar beepCount = 1;
 #define LED12 _pf2
 #define LED13 _pa1
 
+#define RUN _pc4
+
 uchar ledFlashFast[14]    = {0};
 volatile uchar flashCount = 0;
 
@@ -193,8 +195,8 @@ void USER_LED_INITIAL()
 {
     /********LED**************/
     _pac &= 0b00011101;
-    /********LED**************/
-    _pcc &= 0b11011111;
+    /********LED**RUN************/
+    _pcc &= 0b11001111;
     /********LED**************/
     _pdc &= 0b10110011;
     /********LED***BEEP***********/
@@ -233,6 +235,7 @@ void USER_LED()
     }
     if (TKS_500MSF)
     {
+        RUN = !RUN;
         if (flashFlag_1HZ)
         {
             flashFlag_1HZ = 0;
