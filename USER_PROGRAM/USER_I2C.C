@@ -157,7 +157,7 @@ void USER_I2C()
                 case CMD_KEY:
                     break;
                 case CMD_LED:
-                    beepCount += I2cDataIn[4];
+                    beepState.byte   = I2cDataIn[4];
                     ledState[0].byte = I2cDataIn[5];
                     ledState[1].byte = I2cDataIn[6];
                     ledState[2].byte = I2cDataIn[7];
@@ -165,6 +165,17 @@ void USER_I2C()
                     ledState[4].byte = I2cDataIn[9];
                     ledState[5].byte = I2cDataIn[10];
                     ledState[6].byte = I2cDataIn[11];
+
+                    if (BEEPMODE)
+                    {
+                        beepCount     = 0;
+                        beepLongCount = 0;
+                    }
+                    else
+                    {
+                        beepCount += BEEPSHORT;
+                        beepLongCount += BEEPLONG;
+                    }
                     break;
                 case CMD_REG_UP:
                     regDataOk = 1;

@@ -27,6 +27,18 @@ typedef union
 
 typedef struct
 {
+    unsigned char mode : 1;
+    unsigned char bits3 : 3;
+    unsigned char bits4 : 4;
+} _BEEP_bits;
+typedef union
+{
+    _BEEP_bits bits;
+    unsigned char byte;
+} _BEEP_STATE;
+
+typedef struct
+{
     unsigned char *cmd;
     unsigned char *bkHead;
     unsigned char *bkKey;

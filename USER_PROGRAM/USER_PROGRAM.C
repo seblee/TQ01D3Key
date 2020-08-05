@@ -18,7 +18,9 @@ uchar keyTime[keyNUM] = {0};
 uchar keyData         = 0;
 /*****beep**************************/
 #define BEEP _pe3
-uchar beepCount = 1;
+_BEEP_STATE beepState = {0, 0, 0};
+uchar beepCount       = 1;
+uchar beepLongCount   = 0;
 /*****led**************************/
 #define LED00 _pe1
 #define LED01 _pa7
@@ -125,15 +127,35 @@ void USER_PROGRAM()
 {
     uchar i;
     uchar keyRestain = 0;
-    if (TKS_63MSF)
+
+    if (BEEPMODE)
     {
-        if (beepON)
+        beepFlag  = 1;
+        BEEP      = 1;
+        beepCount = 0;
+    }
+    else
+    {
+        if (beepLongCount)
         {
-            beepFlag  = 1;
-            BEEP      = 1;
+            if (TKS_500MSF)
+            {
+                if (beepFlag)
+                {
+                    beepFlag = 0;
+                    BEEP     = 0;
+                    beepLongCount--;
+                }
+                else
+                {
+                    beepFlag = 1;
+                    BEEP     = 1;
+                }
+            }
             beepCount = 0;
+            goto CHECKOUTKEY;
         }
-        else
+        if (TKS_63MSF)
         {
             if (beepFlag)
             {
@@ -149,6 +171,7 @@ void USER_PROGRAM()
         }
     }
 
+CHECKOUTKEY:
     if (SCAN_CYCLEF)
     {
         GET_KEY_BITMAP();
@@ -204,20 +227,21 @@ void USER_LED_INITIAL()
     /********LED**************/
     _pfc &= 0b11010011;
 
-    LED00 = LED_OFF;
-    LED01 = LED_OFF;
-    LED02 = LED_OFF;
-    LED03 = LED_OFF;
-    LED04 = LED_OFF;
-    LED05 = LED_OFF;
-    LED06 = LED_OFF;
-    LED07 = LED_OFF;
-    LED08 = LED_OFF;
-    LED09 = LED_OFF;
-    LED10 = LED_OFF;
-    LED11 = LED_OFF;
-    LED12 = LED_OFF;
-    LED13 = LED_OFF;
+    LED00          = LED_OFF;
+    LED01          = LED_OFF;
+    LED02          = LED_OFF;
+    LED03          = LED_OFF;
+    LED04          = LED_OFF;
+    LED05          = LED_OFF;
+    LED06          = LED_OFF;
+    LED07          = LED_OFF;
+    LED08          = LED_OFF;
+    LED09          = LED_OFF;
+    LED10          = LED_OFF;
+    LED11          = LED_OFF;
+    LED12          = LED_OFF;
+    LED13          = LED_OFF;
+    beepState.byte = 0;
 }
 
 void USER_LED()

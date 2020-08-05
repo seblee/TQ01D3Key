@@ -26,6 +26,7 @@ extern volatile _USR_FLAGA_type ledState[7];
 extern uchar keyBeepMask[2];
 
 extern uchar beepCount;
+extern uchar beepLongCount;
 extern volatile uchar k_count[2];
 extern uchar I2cDataOut[20];
 extern uchar I2cDataIn[20];
@@ -47,5 +48,10 @@ extern uchar rxCount;
 uchar getCheckSum(uchar* data);
 
 extern uint segmentValue[3];
+
+extern _BEEP_STATE beepState;
+#define BEEPMODE beepState.bits.mode
+#define BEEPLONG beepState.bits.bits3
+#define BEEPSHORT beepState.bits.bits4
 
 #endif
