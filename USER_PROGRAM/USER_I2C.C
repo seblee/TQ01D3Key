@@ -21,6 +21,7 @@ volatile _TKS_FLAGA_type I2CbitFlag;
 volatile _TKS_FLAGA_type I2CboardFlag;
 #define boardBLEFlag I2CboardFlag.bits.b0
 #define boardPARAFlag I2CboardFlag.bits.b1
+#define bleInitFlag I2CboardFlag.bits.b2
 /******************************************/
 
 /******************************************/
@@ -109,6 +110,7 @@ void USER_I2C_INITIAL()
 void USER_I2C()
 {
     boardBLEFlag = !BLE_ON;
+    bleInitFlag  = BLEInit;
     if (_hbb != I2CHBBBak)
     {
         I2CHBBBak = _hbb;

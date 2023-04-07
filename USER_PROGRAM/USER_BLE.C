@@ -124,7 +124,8 @@ void USER_BLE_INITIAL()
     _pbc |= 0b00100000;
     /********BLE Connecetd**************/
     _pbc |= 0b00010000;
-    _pbpu &= 0b11101111;
+    _pbpu |= 0b00010000;  //使能上拉
+    // _pbpu &= 0b11101111;
 
     UART_SW         = 1;
     PWR_ON          = 1;
